@@ -13,6 +13,7 @@ from edx_ace.message import MessageType, Message
 from edx_ace.recipient import Recipient
 from edx_ace.utils.date import deserialize
 
+from edxmako.shortcuts import marketing_link
 from openedx.core.djangoapps.schedules.models import Schedule, ScheduleConfig
 
 
@@ -113,6 +114,7 @@ def _recurring_nudge_schedules_for_hour(target_hour, org_list, exclude_orgs=Fals
             'course_url': absolute_url(course_root),
 
             # Platform information
+            'homepage_url': encode_url(marketing_link('ROOT')),
             'dashboard_url': absolute_url(dashboard_url),
             'template_revision': template_revision,
             'template_tag': template_tag,
