@@ -1,5 +1,6 @@
 import datetime
 from subprocess import check_output
+from urlparse import urlparse
 
 from celery.task import task
 from django.conf import settings
@@ -82,8 +83,22 @@ def _recurring_nudge_schedules_for_hour(target_hour, org_list, exclude_orgs=Fals
         course_root = reverse('course_root', args=[course_id_str])
         dashboard_url = reverse('dashboard')
 
+        def encode_url(url):
+            # Sailthru has a bug where URLs that contain "+" characters in their path components are misinterpretted
+            # when GA instrumentation is enabled. We need to percent-encode the path segments of all URLs that are
+            # injected into our templates to work around this issue.
+            parsed_url = urlparse(url)
+            parsed_url.path = urlquote(parsed_url.path)
+            return parsed_url.geturl()
+
         def absolute_url(relative_path):
-            return u'{}{}'.format(settings.LMS_ROOT_URL, urlquote(relative_path))
+            return encode_url(u'{}{}'.format(settings.LMS_ROOT_URL, relative_path))
+
+        def encode_urls_in_dict(mapping):
+            urls = {}
+            for key, value in mapping.iteritems():
+                urls[key] = encode_url(value)
+            return urls
 
         try:
             template_revision = check_output(['git', 'log', '-1', '--format=%H'])
@@ -103,8 +118,8 @@ def _recurring_nudge_schedules_for_hour(target_hour, org_list, exclude_orgs=Fals
             'template_tag': template_tag,
             'platform_name': settings.PLATFORM_NAME,
             'contact_mailing_address': settings.CONTACT_MAILING_ADDRESS,
-            'social_media_urls': getattr(settings, 'SOCIAL_MEDIA_FOOTER_URLS', {}),
-            'mobile_store_urls': getattr(settings, 'MOBILE_STORE_URLS', {}),
+            'social_media_urls': encode_urls_in_dict(getattr(settings, 'SOCIAL_MEDIA_FOOTER_URLS', {})),
+            'mobile_store_urls': encode_urls_in_dict(getattr(settings, 'MOBILE_STORE_URLS', {})),
 
             # This is used by the bulk email optout policy
             'course_id': course_id_str,
