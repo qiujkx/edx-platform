@@ -4,7 +4,7 @@
 // Skip nav
 .nav-skip,
 .transcript-skip {
-  font-size: 14px;
+  font-size: $font-size-base;
   line-height: 14px;
   display: inline-block;
   position: absolute;
@@ -70,9 +70,9 @@
     .cta-show-sock {
       @extend %ui-btn-pill;
       @extend %t-action4;
-      background: $gray-500;
+      background: theme-color("light");
       padding: ($baseline/2) $baseline;
-      color: $gray-500;
+      color: theme-color("dark");
 
       .icon {
         margin-right: $baseline/4;
@@ -80,7 +80,7 @@
 
       &:hover {
         background: theme-color("primary");
-        color: $white;
+        color: theme-color("inverse");
       }
     }
   }
