@@ -150,6 +150,7 @@ email itself. -->
                                         <table role="presentation" width="100%" align="left" border="0" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td style="padding-bottom: 10px;">
+                                                    {# Note that this variable is evaluated by Sailthru, not the Django template engine #}
                                                     <a href="{optout_confirm_url}" style="color: #005686">
                                                         <font color="#005686"><b>{% trans "Unsubscribe from this list" %}</b></font>
                                                     </a>
