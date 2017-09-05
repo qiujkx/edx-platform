@@ -1,5 +1,8 @@
 # Configuration for i18n workflow.
 
+edx_lang_map:
+    zh_CN: zh_HANS
+
 locales:
     - en  # English - Source Language
     # - am  # Amharic
