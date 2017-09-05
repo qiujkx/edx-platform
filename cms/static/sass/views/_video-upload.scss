@@ -20,6 +20,7 @@
 
   .course-video-settings-container {
     position: absolute;
+    overflow: scroll;
     top: 0;
     right: -100%;
     z-index: 1000;
@@ -41,51 +42,51 @@
     .action-close-wrapper {
       .action-close-course-video-settings {
         width: 100%;
-        padding: 10px 16px;
+        padding: ($baseline/2) ($baseline*0.8);
         text-align: left;
         background-color: #ECF0F1;
         border: transparent;
-        height: 48px;
-        font-size: 16px;
+        height: ($baseline*2.4);
+        font-size: ($baseline*0.8);
         color: #2C3E50;
       }
     }
 
     .course-video-settings-wrapper {
-      margin-top: 32px;
-      padding: 20px 16px;
+      margin-top: ($baseline*1.60);
+      padding: ($baseline) ($baseline*0.8);
 
       .course-video-settings-title {
-        font-size: 24px;
+        font-size: ($baseline*1.2);
         color: #333333;
-        margin: 32px 0 16px 0;
+        margin: ($baseline*1.6) 0 ($baseline*0.8) 0;
         font-weight: font-weight(semi-bold);
       }
 
-      .course-video-settings-success, .course-video-settings-error {
-        padding: 10px;
-        margin-bottom: 16px;
-        max-height: 48px;
+      .course-video-settings-message {
+        padding: ($baseline/2);
+        margin-bottom: ($baseline*0.8);
+        max-height: ($baseline*2.4);
         color: #000000;
-        font-size: 16px;
+        font-size: ($baseline*0.8);
         border: solid 1px #d6e9c6;
         .icon {
-          margin-right: 5px;
+          margin-right: ($baseline/4);
         }
       }
 
-      .course-video-settings-success {
+      .course-video-settings-message-wrapper.success {
         background-color: #dff0d8;
       }
 
-      .course-video-settings-error {
+      .course-video-settings-message-wrapper.error {
         background-color: $color-error;
       }
 
       .transcript-preferance-wrapper {
-        margin-top: 32px;
+        margin-top: ($baseline*1.6);
         .icon.fa-info-circle {
-          margin-left: 5px;
+          margin-left: ($baseline/4);
         }
       }
       .transcript-preferance-wrapper.error .transcript-preferance-label {
@@ -97,28 +98,28 @@
       }
 
       .error-info {
-        font-size: 0.75em;
+        font-size: ($baseline*0.6);
       }
 
       .transcript-preferance-label {
         color: #333333;
-        font-size: 15px;
+        font-size: ($baseline*0.75);
         font-weight: font-weight(semi-bold);
       }
 
       .transcript-provider-group, .transcript-turnaround, .transcript-fidelity  {
-        margin-top: 16px;
+        margin-top: ($baseline*0.8);
       }
 
 
       .transcript-provider-group {
         input[type=radio]  {
-          margin: 0 10px;
+          margin: 0 ($baseline/2);
         }
         label {
           font-weight: normal;
           color: #333333;
-          font-size: 15px;
+          font-size: ($baseline*0.75);
         }
       }
 
@@ -126,34 +127,40 @@
         display: none;
       }
 
-      .transcript-languages-container .languages-menu-container {
+      .transcript-languages-container .languages-container {
         overflow: scroll;
-        max-height: 200px;
-        padding: 0 20px;
-        .transcript-language-menu-container {
-          margin-top: 16px;
-          .transcript-language-menu {
-            width: 65%;
-          }
+        margin-top: ($baseline*0.8);
+        max-height: ($baseline*10);
+        .transcript-language-container {
+          padding: ($baseline/4);
+          background-color: #F9FAFC;
+          border-top: solid 1px #DEE1E2;
+          border-bottom: solid 1px #DEE1E2;
           .remove-language-action {
             display: inline-block;
             float: right;
           }
-          .add-language-action {
-            display: inline-block;
-            .action-add-language {
-              margin: 0 5px 0 5px;
-            }
+        }
+      }
+      .transcript-language-menu-container {
+        margin-top: ($baseline*0.8);
+        .transcript-language-menu {
+          width: 65%;
+        }
+        .add-language-action {
+          display: inline-block;
+          .action-add-language {
+            margin-left:($baseline/4);
           }
         }
       }
     }
 
     .course-video-settings-footer {
-      margin-top: 30px;
+      margin-top: ($baseline*1.6);
       .last-updated-text {
-        font-size: 0.75em;
-        margin-left: 5px;
+        font-size: ($baseline*0.6);
+        margin-left: ($baseline/4);
       }
     }
 
@@ -208,6 +215,12 @@
 
         .upload-text-link {
           color: $ui-link-color;
+        }
+
+        .video-uploads-header {
+          font-size: 1.5em;
+          margin-bottom: .25em;
+          font-weight: 600
         }
 
         .video-max-file-size-text {

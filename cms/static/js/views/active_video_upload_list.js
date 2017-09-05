@@ -83,7 +83,7 @@ define([
                     activeTranscriptPreferences: this.activeTranscriptPreferences,
                     videoTranscriptSettings: this.videoTranscriptSettings
                 });
-                Backbone.trigger('coursevideosettings:showCourseVideoSettingsView');
+                this.courseVideoSettingsView.render();
                 event.stopPropagation();
             },
 

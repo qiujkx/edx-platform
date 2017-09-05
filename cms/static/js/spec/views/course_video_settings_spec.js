@@ -189,7 +189,7 @@ define(
                 expect($courseVideoSettingsEl.find('.transcript-provider-group').html()).toEqual('');
                 expect($courseVideoSettingsEl.find('#transcript-turnaround').html()).toEqual('');
                 expect($courseVideoSettingsEl.find('#transcript-fidelity').html()).toEqual('');
-                expect($courseVideoSettingsEl.find('.languages-menu-container').html()).toEqual('');
+                expect($courseVideoSettingsEl.find('#transcript-language').html()).toEqual('');
             });
 
             it('populates transcription plans correctly', function() {
@@ -209,11 +209,9 @@ define(
                 expect($courseVideoSettingsEl.find('#transcript-fidelity').val()).toEqual(
                     activeTranscriptPreferences.cielo24_fidelity
                 );
-                expect(
-                    $courseVideoSettingsEl.find(
-                        '.transcript-language-menu-container:not(:has(.transcript-language-menu))'
-                    ).length
-                ).toEqual(activeTranscriptPreferences.preferred_languages.length);
+                expect($courseVideoSettingsEl.find('.transcript-language-container').length).toEqual(
+                    activeTranscriptPreferences.preferred_languages.length
+                );
 
                 // Now check values are assigned correctly.
                 expect(courseVideoSettingsView.selectedProvider, activeTranscriptPreferences.provider);
@@ -246,8 +244,11 @@ define(
                 });
 
                 // Verify that success message is shown.
-                expect($courseVideoSettingsEl.find('.course-video-settings-success').html()).toEqual(
-                    '<span class="icon fa fa-check-circle" aria-hidden="true"></span><span>Settings updated</span>'
+                expect($courseVideoSettingsEl.find('.course-video-settings-message-wrapper.success').html()).toEqual(
+                    '<div class="course-video-settings-message">' +
+                    '<span class="icon fa fa-check-circle" aria-hidden="true"></span>' +
+                    '<span>Settings updated</span>' +
+                    '</div>'
                 );
             });
 
@@ -275,8 +276,11 @@ define(
                 });
 
                 // Verify that success message is shown.
-                expect($courseVideoSettingsEl.find('.course-video-settings-error').html()).toEqual(
-                    '<span class="icon fa fa-info-circle" aria-hidden="true"></span><span>Error message</span>'
+                expect($courseVideoSettingsEl.find('.course-video-settings-message-wrapper.error').html()).toEqual(
+                    '<div class="course-video-settings-message">' +
+                    '<span class="icon fa fa-info-circle" aria-hidden="true"></span>' +
+                    '<span>Error message</span>' +
+                    '</div>'
                 );
             });
 

@@ -17,7 +17,7 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             'change .transcript-provider-group input': 'providerSelected',
             'change #transcript-turnaround': 'turnaroundSelected',
             'change #transcript-fidelity': 'fidelitySelected',
-            'click .action-add-language': 'languageAdded',
+            'click .action-add-language': 'languageSelected',
             'click .action-remove-language': 'languageRemoved',
             'click .action-update-course-video-settings': 'updateCourseVideoSettings',
             'click .action-close-course-video-settings': 'closeCourseVideoSettings'
@@ -31,7 +31,6 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             this.template = HtmlUtils.template(TranscriptSettingsTemplate);
             this.setActiveTranscriptPlanData();
             this.selectedLanguages = [];
-            this.listenTo(Backbone, 'coursevideosettings:showCourseVideoSettingsView', this.render);
         },
 
         registerCloseClickHandler: function() {
@@ -74,10 +73,6 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             }
         },
 
-        getProviderPlan: function() {
-            return this.availableTranscriptionPlans;
-        },
-
         getTurnaroundPlan: function() {
             var turnaroundPlan = null;
             if (this.selectedProvider) {
@@ -107,6 +102,9 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             this.selectedFidelityPlan = event.target.value;
             // Remove any error if present already.
             this.clearPreferanceErrorState($fidelityContainer);
+
+            // Clear active and selected languages.
+            this.selectedLanguages = this.activeLanguages = [];
             this.populateLanguages();
         },
 
@@ -116,7 +114,6 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             this.selectedTurnaroundPlan = event.target.value;
             // Remove any error if present already.
             this.clearPreferanceErrorState($turnaroundContainer);
-            this.populateLanguages();
         },
 
         providerSelected: function(event) {
@@ -125,7 +122,7 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             this.populatePreferences();
         },
 
-        languageAdded: function(event) {
+        languageSelected: function(event) {
             var $parentEl = $(event.target.parentElement).parent(),
                 $languagesEl = this.$el.find('.transcript-languages-wrapper'),
                 selectedLanguage = $parentEl.find('select').val();
@@ -136,28 +133,9 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             // Only add if not in the list already.
             if (selectedLanguage && _.indexOf(this.selectedLanguages, selectedLanguage) === -1) {
                 this.selectedLanguages.push(selectedLanguage);
-                HtmlUtils.setHtml(
-                    $parentEl,
-                    HtmlUtils.joinHtml(
-                        HtmlUtils.interpolateHtml(
-                            HtmlUtils.HTML('<span>{languageDisplayName}</span>'),
-                            {
-                                languageDisplayName: this.availableLanguages[selectedLanguage]
-                            }
-                        ),
-                        HtmlUtils.interpolateHtml(
-                            HtmlUtils.HTML('<div class="remove-language-action"><button class="button-link action-remove-language" data-language-code="{languageCode}">{text}<span class="sr">{srText}</span></button></div>'), // eslint-disable-line max-len
-                            {
-                                languageCode: selectedLanguage,
-                                text: gettext('Remove'),
-                                srText: gettext('Press Remove to remove language')
-                            }
-                        )
-                    )
-                );
-
-                // Add a new language menu
-                this.addLanguageMenu();
+                this.addLanguage(selectedLanguage);
+                // Populate language menu with latest data.
+                this.populateLanguageMenu();
             } else {
                 this.addErrorState($languagesEl);
             }
@@ -166,12 +144,17 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
         languageRemoved: function(event) {
             var selectedLanguage = $(event.target).data('language-code');
             $(event.target.parentElement).parent().remove();
-            this.selectedLanguages.pop(selectedLanguage);
+
+            // Remove language from selected languages.
+            this.selectedLanguages = _.without(this.selectedLanguages, selectedLanguage);
+
+            // Populate menu again to reflect latest changes.
+            this.populateLanguageMenu();
         },
 
         populateProvider: function() {
             var self = this,
-                providerPlan = self.getProviderPlan(),
+                providerPlan = self.availableTranscriptionPlans,
                 $providerEl = self.$el.find('.transcript-provider-group');
 
             if (providerPlan) {
@@ -212,7 +195,7 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             // Clear error state if present any.
             this.clearPreferanceErrorState($turnaroundContainer);
 
-            if (self.selectedProvider && turnaroundPlan) {
+            if (turnaroundPlan) {
                 HtmlUtils.setHtml(
                     $turnaround,
                     HtmlUtils.HTML(new Option(gettext('Select turnaround'), ''))
@@ -240,7 +223,7 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             this.clearPreferanceErrorState($fidelityContainer);
 
             // Fidelity dropdown
-            if (self.selectedProvider && fidelityPlan) {
+            if (fidelityPlan) {
                 HtmlUtils.setHtml(
                     $fidelity,
                     HtmlUtils.HTML(new Option(gettext('Select fidelity'), ''))
@@ -252,62 +235,68 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
                     }
                     HtmlUtils.append($fidelity, HtmlUtils.HTML(option));
                 });
-                self.$el.find('.transcript-fidelity-wrapper').show();
+                $fidelityContainer.show();
             } else {
-                self.$el.find('.transcript-fidelity-wrapper').hide();
+                $fidelityContainer.hide();
             }
         },
 
         populateLanguages: function() {
             var self = this,
                 $languagesPreferanceContainer = self.$el.find('.transcript-languages-wrapper'),
-                $languagesContainer = self.$el.find('.languages-menu-container'),
-                isTurnaroundSelected = self.$el.find('#transcript-turnaround')[0].options.selectedIndex,
-                isFidelitySelected = self.$el.find('#transcript-fidelity')[0].options.selectedIndex;
+                $languagesContainer = self.$el.find('.languages-container');
 
             // Clear error state if present any.
             this.clearPreferanceErrorState($languagesPreferanceContainer);
 
             $languagesContainer.empty();
 
-            if (self.selectedProvider &&
-                    ((isTurnaroundSelected > 0 && self.selectedProvider === '3PlayMedia') ||
-                    (isTurnaroundSelected > 0 && isFidelitySelected > 0))) {
+            // Show language container if provider is 3PlayMedia, else if fidelity is selected.
+            if (self.selectedProvider === '3PlayMedia' || self.selectedFidelityPlan) {
                 self.availableLanguages = self.getPlanLanguages();
                 _.each(self.activeLanguages, function(activeLanguage) {
                     // Only add if not in the list already.
                     if (_.indexOf(self.selectedLanguages, activeLanguage) === -1) {
                         self.selectedLanguages.push(activeLanguage);
-                        HtmlUtils.append(
-                            $languagesContainer,
-                            HtmlUtils.joinHtml(
-                                HtmlUtils.HTML('<div class="transcript-language-menu-container">'),
-                                HtmlUtils.interpolateHtml(
-                                    HtmlUtils.HTML('<span>{languageDisplayName}</span>'),
-                                    {
-                                        languageDisplayName: self.availableLanguages[activeLanguage]
-                                    }
-                                ),
-                                HtmlUtils.interpolateHtml(
-                                    HtmlUtils.HTML('<div class="remove-language-action"><button class="button-link action-remove-language" data-language-code="{languageCode}">{text}<span class="sr">{srText}</span></button></div>'), // eslint-disable-line max-len
-                                    {
-                                        languageCode: activeLanguage,
-                                        text: gettext('Remove'),
-                                        srText: gettext('Press Remove to remove language')
-                                    }
-                                ),
-                                HtmlUtils.HTML('</div>')
-                            )
-                        );
+                        self.addLanguage(activeLanguage);
                     }
                 });
-
-                self.addLanguageMenu();
-
-                self.$el.find('.transcript-languages-wrapper').show();
+                $languagesPreferanceContainer.show();
+                self.populateLanguageMenu();
             } else {
                 self.availableLanguages = {};
-                self.$el.find('.transcript-languages-wrapper').hide();
+                $languagesPreferanceContainer.hide();
+            }
+        },
+
+        populateLanguageMenu: function() {
+            var availableLanguages,
+                $languageMenuEl = this.$el.find('.transcript-language-menu'),
+                $languageMenuContainerEl = this.$el.find('.transcript-language-menu-container'),
+                selectOptionEl = new Option(gettext('Select language'), '');
+
+            // Omit out selected languages from selecting again.
+            availableLanguages = _.omit(this.availableLanguages, this.selectedLanguages);
+
+            // If no available language is left, then don't even show add language box.
+            if (_.keys(availableLanguages).length) {
+                $languageMenuContainerEl.show();
+                // We need to set id due to a11y aria-labelledby
+                selectOptionEl.id = 'transcript-language-none';
+
+                HtmlUtils.setHtml(
+                    $languageMenuEl,
+                    HtmlUtils.HTML(selectOptionEl)
+                );
+
+                _.each(availableLanguages, function(value, key) {
+                    HtmlUtils.append(
+                        $languageMenuEl,
+                        HtmlUtils.HTML(new Option(value, key))
+                    );
+                });
+            } else {
+                $languageMenuContainerEl.hide();
             }
         },
 
@@ -318,59 +307,34 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             this.populateLanguages();
         },
 
-        addLanguageMenu: function() {
-            var availableLanguages,
-                $transcriptLanguage,
-                $languagesContainer = this.$el.find('.languages-menu-container'),
-                selectOptionEl = new Option(gettext('Select language'), ''),
-                totalCurrentLanguageMenus = $languagesContainer.find('.transcript-language-menu').length;
-
-            // Omit out selected languages from selecting again.
-            availableLanguages = _.omit(this.availableLanguages, this.selectedLanguages);
-
+        addLanguage: function(language) {
+            var $languagesContainer = this.$el.find('.languages-container');
             HtmlUtils.append(
                 $languagesContainer,
                 HtmlUtils.joinHtml(
-                    HtmlUtils.HTML('<div class="transcript-language-menu-container">'),
+                    HtmlUtils.HTML('<div class="transcript-language-container">'),
                     HtmlUtils.interpolateHtml(
-                        HtmlUtils.HTML('<select class="transcript-language-menu" id="transcript-language-menu-{languageMenuId}" aria-labelledby="first"></select>'),    // eslint-disable-line max-len
+                        HtmlUtils.HTML('<span>{languageDisplayName}</span>'),
                         {
-                            languageMenuId: totalCurrentLanguageMenus
+                            languageDisplayName: this.availableLanguages[language]
                         }
                     ),
-                    HtmlUtils.HTML('<div class="add-language-action">'),
                     HtmlUtils.interpolateHtml(
-                        HtmlUtils.HTML('<button class="button-link action-add-language">{text}<span class="sr">{srText}</span></button>'),  // eslint-disable-line max-len
+                        HtmlUtils.HTML('<div class="remove-language-action"><button class="button-link action-remove-language" data-language-code="{languageCode}">{text}<span class="sr">{srText}</span></button></div>'), // eslint-disable-line max-len
                         {
-                            text: gettext('Add'),
-                            srText: gettext('Press Add to language')
+                            languageCode: language,
+                            text: gettext('Remove'),
+                            srText: gettext('Press Remove to remove language')
                         }
                     ),
-                    HtmlUtils.HTML('<span class="error-info" aria-hidden="true"></span>'),
-                    HtmlUtils.HTML('</div></div>')
+                    HtmlUtils.HTML('</div>')
                 )
             );
-            $transcriptLanguage = this.$el.find('#transcript-language-menu-' + totalCurrentLanguageMenus);
-
-            // We need to set id due to a11y aria-labelledby
-            selectOptionEl.id = 'first';
-
-            HtmlUtils.append(
-                $transcriptLanguage,
-                HtmlUtils.HTML(selectOptionEl)
-            );
-            _.each(availableLanguages, function(value, key) {
-                HtmlUtils.append(
-                    $transcriptLanguage,
-                    HtmlUtils.HTML(new Option(value, key))
-                );
-            });
         },
 
         clearResponseStatus: function() {
             // Remove parent level state.
-            this.$el.find('.course-video-settings-error-wrapper').empty();
-            this.$el.find('.course-video-settings-success-wrapper').empty();
+            this.$el.find('.course-video-settings-message-wrapper').empty();
         },
 
         clearPreferanceErrorState: function($preferanceContainer) {
@@ -436,8 +400,7 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
 
         saveTranscriptPreferences: function() {
             var self = this,
-                $successEl = self.$el.find('.course-video-settings-success-wrapper'),
-                $errorEl = self.$el.find('.course-video-settings-error-wrapper');
+                $messageWrapperEl = self.$el.find('.course-video-settings-message-wrapper');
 
             // First clear response status if present already
             this.clearResponseStatus();
@@ -451,10 +414,12 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
                 global: false   // Do not trigger global AJAX error handler
             }, function(data) {
                 if (data.transcript_preferences) {
+                    $messageWrapperEl.removeClass('error');
+                    $messageWrapperEl.addClass('success');
                     HtmlUtils.setHtml(
-                        $successEl,
+                        $messageWrapperEl,
                         HtmlUtils.interpolateHtml(
-                            HtmlUtils.HTML('<div class="course-video-settings-success"><span class="icon fa fa-check-circle" aria-hidden="true"></span><span>{text}</span></div>'), // eslint-disable-line max-len
+                            HtmlUtils.HTML('<div class="course-video-settings-message"><span class="icon fa fa-check-circle" aria-hidden="true"></span><span>{text}</span></div>'), // eslint-disable-line max-len
                             {
                                 text: gettext('Settings updated')
                             }
@@ -475,10 +440,12 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
                     try {
                         errorMessage = $.parseJSON(jqXHR.responseText).error;
                     } catch (e) {}  // eslint-disable-line no-empty
+                    $messageWrapperEl.removeClass('success');
+                    $messageWrapperEl.addClass('error');
                     HtmlUtils.setHtml(
-                        $errorEl,
+                        $messageWrapperEl,
                         HtmlUtils.interpolateHtml(
-                            HtmlUtils.HTML('<div class="course-video-settings-error"><span class="icon fa fa-info-circle" aria-hidden="true"></span><span>{text}</span></div>'),    // eslint-disable-line max-len
+                            HtmlUtils.HTML('<div class="course-video-settings-message"><span class="icon fa fa-info-circle" aria-hidden="true"></span><span>{text}</span></div>'),    // eslint-disable-line max-len
                             {
                                 text: errorMessage || gettext('Error saving data')
                             }
@@ -489,11 +456,11 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
         },
 
         updateCourseVideoSettings: function() {
-            var $successEl = this.$el.find('.course-video-settings-success-wrapper');
+            var $messageWrapperEl = this.$el.find('.course-video-settings-message-wrapper');
             if (this.validateCourseVideoSettings()) {
                 this.saveTranscriptPreferences();
             } else {
-                $successEl.empty();
+                $messageWrapperEl.empty();
             }
         },
 
