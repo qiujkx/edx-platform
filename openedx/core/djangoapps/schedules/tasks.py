@@ -89,7 +89,7 @@ def _recurring_nudge_schedules_for_hour(target_hour, org_list, exclude_orgs=Fals
             # when GA instrumentation is enabled. We need to percent-encode the path segments of all URLs that are
             # injected into our templates to work around this issue.
             parsed_url = urlparse(url)
-            parsed_url.path = urlquote(parsed_url.path)
+            parsed_url._replace(path=urlquote(parsed_url.path))
             return parsed_url.geturl()
 
         def absolute_url(relative_path):
