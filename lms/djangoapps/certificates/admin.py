@@ -13,6 +13,7 @@ from certificates.models import (
     CertificateTemplateAsset,
     GeneratedCertificate
 )
+from openedx.core.djangoapps.lang_pref.api import all_languages
 from util.organizations_helpers import get_organizations
 
 
@@ -27,6 +28,11 @@ class CertificateTemplateForm(forms.ModelForm):
         org_choices.insert(0, ('', 'None'))
         self.fields['organization_id'] = forms.TypedChoiceField(
             choices=org_choices, required=False, coerce=int, empty_value=None
+        )
+        lang_choices = all_languages()
+        lang_choices.insert(0, ('', '------------'))
+        self.fields['language'] = forms.ChoiceField(
+            choices=lang_choices, required=False
         )
 
     class Meta(object):
