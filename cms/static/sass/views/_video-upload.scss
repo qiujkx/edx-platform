@@ -1,3 +1,6 @@
+$gray-background: #ECF0F1;
+$dark-black-blue: #2C3E50;
+
 .view-video-uploads {
 
   .content-primary, .content-supplementary {
@@ -26,7 +29,7 @@
     z-index: 1000;
     width: 352px;
     transition: all 0.3s ease;
-    background-color: #ffffff;
+    background-color: $white;
     -webkit-box-shadow: -3px 0px 3px 0px rgba(153,153,153,0.3);
     -moz-box-shadow: -3px 0px 3px 0px rgba(153,153,153,0.3);
     box-shadow: -3px 0px 3px 0px rgba(153,153,153,0.3);
@@ -43,12 +46,12 @@
       .action-close-course-video-settings {
         width: 100%;
         padding: ($baseline/2) ($baseline*0.8);
-        text-align: left;
-        background-color: #ECF0F1;
+        background-color: $gray-background;
         border: transparent;
         height: ($baseline*2.4);
-        font-size: ($baseline*0.8);
-        color: #2C3E50;
+        color: $dark-black-blue;
+        @include font-size(16);
+        @include text-align(left);
       }
     }
 
@@ -57,36 +60,37 @@
       padding: ($baseline) ($baseline*0.8);
 
       .course-video-settings-title {
-        font-size: ($baseline*1.2);
-        color: #333333;
+        color: $black-t4;
         margin: ($baseline*1.6) 0 ($baseline*0.8) 0;
         font-weight: font-weight(semi-bold);
+        @include font-size(24);
       }
 
       .course-video-settings-message {
         padding: ($baseline/2);
         margin-bottom: ($baseline*0.8);
         max-height: ($baseline*2.4);
-        color: #000000;
-        font-size: ($baseline*0.8);
-        border: solid 1px #d6e9c6;
+        color: $black;
+        @include font-size(16);
         .icon {
-          margin-right: ($baseline/4);
+          @include margin-right($baseline/4);
         }
       }
 
-      .course-video-settings-message-wrapper.success {
-        background-color: #dff0d8;
+      .course-video-settings-message-wrapper.success .course-video-settings-message {
+        background-color: $state-success-bg;
+        border: solid 1px $state-success-border;
       }
 
-      .course-video-settings-message-wrapper.error {
-        background-color: $color-error;
+      .course-video-settings-message-wrapper.error .course-video-settings-message {
+        background-color: $state-danger-bg;
+        border: solid 1px $state-danger-border;
       }
 
       .transcript-preferance-wrapper {
         margin-top: ($baseline*1.6);
         .icon.fa-info-circle {
-          margin-left: ($baseline/4);
+          @include margin-left($baseline/4);
         }
       }
       .transcript-preferance-wrapper.error .transcript-preferance-label {
@@ -98,12 +102,12 @@
       }
 
       .error-info {
-        font-size: ($baseline*0.6);
+        @include font-size(16);
       }
 
       .transcript-preferance-label {
-        color: #333333;
-        font-size: ($baseline*0.75);
+        color: $black-t4;
+        @include font-size(15);
         font-weight: font-weight(semi-bold);
       }
 
@@ -118,8 +122,8 @@
         }
         label {
           font-weight: normal;
-          color: #333333;
-          font-size: ($baseline*0.75);
+          color: $black-t4;
+          @include font-size(15);
         }
       }
 
@@ -128,17 +132,15 @@
       }
 
       .transcript-languages-container .languages-container {
-        overflow: scroll;
         margin-top: ($baseline*0.8);
-        max-height: ($baseline*10);
         .transcript-language-container {
           padding: ($baseline/4);
-          background-color: #F9FAFC;
-          border-top: solid 1px #DEE1E2;
-          border-bottom: solid 1px #DEE1E2;
+          background-color: $gray-l6;
+          border-top: solid 1px $gray-l4;
+          border-bottom: solid 1px $gray-l4;
           .remove-language-action {
             display: inline-block;
-            float: right;
+            @include float(right);
           }
         }
       }
@@ -150,7 +152,7 @@
         .add-language-action {
           display: inline-block;
           .action-add-language {
-            margin-left:($baseline/4);
+            @include margin-left($baseline/4);
           }
         }
       }
@@ -159,8 +161,8 @@
     .course-video-settings-footer {
       margin-top: ($baseline*1.6);
       .last-updated-text {
-        font-size: ($baseline*0.6);
-        margin-left: ($baseline/4);
+        @include font-size(12);
+        @include margin-left($baseline/4);
       }
     }
 

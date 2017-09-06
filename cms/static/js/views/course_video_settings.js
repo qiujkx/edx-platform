@@ -334,7 +334,10 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
 
         clearResponseStatus: function() {
             // Remove parent level state.
-            this.$el.find('.course-video-settings-message-wrapper').empty();
+            var $messageWrapperEl = this.$el.find('.course-video-settings-message-wrapper');
+            $messageWrapperEl.empty();
+            $messageWrapperEl.removeClass('error');
+            $messageWrapperEl.removeClass('success');
         },
 
         clearPreferanceErrorState: function($preferanceContainer) {
@@ -499,7 +502,7 @@ function($, Backbone, _, gettext, moment, HtmlUtils, StringUtils, TranscriptSett
             // Make sticky when scroll reaches top.
             $(window).scroll(function() {
                 // Remove transition when we start scrolling.
-                // Why we do this? The settings pane does some back and forth movement when it is switched between
+                // Why we do this? The settings pane come back and forth when it is switched between
                 // position:fixed and position:absolute, it's right and top position are then being changed wrt to their
                 // position layout.
                 $courseVideoSettingsContainer.css('transition', 'none');

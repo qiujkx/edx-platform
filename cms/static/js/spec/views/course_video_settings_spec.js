@@ -15,49 +15,14 @@ define(
                     cielo24_fidelity: 'PROFESSIONAL',
                     cielo24_turnaround: 'PRIORITY',
                     three_play_turnaround: '',
-                    preferred_languages: [
-                        'ru',
-                        'fr',
-                        'pt',
-                        'nl'
-                    ],
+                    preferred_languages: ['fr', 'en'],
                     modified: '2017-08-27T12:28:17.421260Z'
                 },
                 transcriptionPlans = {
                     '3PlayMedia': {
                         languages: {
                             fr: 'French',
-                            en: 'English',
-                            ms: 'Malay',
-                            tr: 'Turkish',
-                            de: 'German',
-                            it: 'Italian',
-                            da: 'Danish',
-                            ar: 'Arabic',
-                            uk: 'Ukrainian',
-                            bg: 'Bulgarian',
-                            cs: 'Czech',
-                            fi: 'Finnish',
-                            hu: 'Hungarian',
-                            ja: 'Japanese',
-                            he: 'Hebrew',
-                            ru: 'Russian',
-                            ro: 'Romanian',
-                            nl: 'Dutch',
-                            pt: 'Portuguese',
-                            no: 'Norwegian',
-                            'zh-hans': 'Chinese (Simplified)',
-                            sr: 'Serbian',
-                            ko: 'Korean',
-                            sv: 'Swedish',
-                            id: 'Indonesian',
-                            sk: 'Slovak',
-                            tl: 'Tagalog',
-                            th: 'Thai',
-                            vi: 'Vietnamese',
-                            'es-419': 'Spanish (Latin America)',
-                            'zh-cmn-Hant': 'Chinese (Traditional)',
-                            pl: 'Polish'
+                            en: 'English'
                         },
                         turnaround: {
                             default: '4-Day/Default',
@@ -78,21 +43,7 @@ define(
                                 languages: {
                                     ru: 'Russian',
                                     fr: 'French',
-                                    en: 'English',
-                                    nl: 'Dutch',
-                                    pt: 'Portuguese',
-                                    'zh-yue': 'Chinese - Cantonese (Traditional)',
-                                    'zh-tw': 'Chinese - Mandarin (Traditional)',
-                                    de: 'German',
-                                    ko: 'Korean',
-                                    'zh-cmn': 'Chinese - Mandarin (Simplified)',
-                                    it: 'Italian',
-                                    tr: 'Turkish',
-                                    ar: 'Arabic',
-                                    hi: 'Hindi',
-                                    ja: 'Japanese',
-                                    es: 'Spanish',
-                                    he: 'Hebrew'
+                                    en: 'English'
                                 },
                                 display_name: 'Professional, 99% Accuracy'
                             },
@@ -106,10 +57,7 @@ define(
                                 languages: {
                                     fr: 'French',
                                     en: 'English',
-                                    nl: 'Dutch',
-                                    de: 'German',
-                                    it: 'Italian',
-                                    es: 'Spanish'
+                                    nl: 'Dutch'
                                 },
                                 display_name: 'Mechanical, 75% Accuracy'
                             }
@@ -220,7 +168,7 @@ define(
                 expect(courseVideoSettingsView.selectedLanguages, activeTranscriptPreferences.preferred_languages);
             });
 
-            it('saves transcript settings on update settings buttton click if preferances are selected', function() {
+            it('saves transcript settings on update settings button click if preferances are selected', function() {
                 var requests = AjaxHelpers.requests(this);
                 $courseVideoSettingsEl.find('.action-update-course-video-settings').click();
 
@@ -238,7 +186,7 @@ define(
                     })
                 );
 
-                // Send successful upload response
+                // Send successful upload response.
                 AjaxHelpers.respondWithJson(requests, {
                     transcript_preferences: activeTranscriptPreferences
                 });
@@ -275,7 +223,7 @@ define(
                     error: 'Error message'
                 });
 
-                // Verify that success message is shown.
+                // Verify that error message is shown.
                 expect($courseVideoSettingsEl.find('.course-video-settings-message-wrapper.error').html()).toEqual(
                     '<div class="course-video-settings-message">' +
                     '<span class="icon fa fa-info-circle" aria-hidden="true"></span>' +
@@ -307,6 +255,9 @@ define(
                 verifyPreferanceErrorState($courseVideoSettingsEl.find('.transcript-fidelity-wrapper'), false);
                 verifyPreferanceErrorState($courseVideoSettingsEl.find('.transcript-languages-wrapper'), false);
             });
+
+            // TODO: Add more tests like clicking on add language, remove and their scenarios and some other tests
+            // like N/A selected, specific provider selected tests, specific preferance selected tests etc.
         });
     }
 );

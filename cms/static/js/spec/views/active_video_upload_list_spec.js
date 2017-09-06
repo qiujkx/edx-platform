@@ -84,7 +84,7 @@ define(
                 });
             });
 
-            it('should trigger file selection when either the upload button or the drop zone is clicked', function() {
+            it('should trigger file selection when the drop zone is clicked', function() {
                 var clickSpy = jasmine.createSpy();
                 clickSpy.and.callFake(function(event) { event.preventDefault(); });
                 this.view.$('.js-file-input').on('click', clickSpy);
