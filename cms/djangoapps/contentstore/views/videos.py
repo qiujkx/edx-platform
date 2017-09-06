@@ -4,6 +4,7 @@ Views related to the video upload feature
 from contextlib import closing
 
 import csv
+import json
 import logging
 from datetime import datetime, timedelta
 from uuid import uuid4
@@ -661,9 +662,9 @@ def videos_post(course, request):
             ('course_key', unicode(course.id)),
         ]
 
-        transcript_preferences = data.get('transcript_preferences', None)
+        transcript_preferences = get_transcript_preferences(unicode(course.id))
         if transcript_preferences is not None:
-            metadata_list.append(('transcript_preferences', transcript_preferences))
+            metadata_list.append(('transcript_preferences', json.dumps(transcript_preferences)))
 
         for metadata_name, value in metadata_list:
             key.set_metadata(metadata_name, value)
